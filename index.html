@@ -3,436 +3,547 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Samtskhe Digital Map & Booking</title>
+  <title>GeoRegion - სამცხე-ჯავახეთის ციფრული რუკა & დაჯავშნა</title>
   
+  <!-- PWA & Mobile Optimization Meta -->
+  <meta name="theme-color" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <!-- Google Fonts: Noto Sans Georgian -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
+
   <!-- Leaflet CSS for Map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
     :root {
       --primary: #2563eb;
       --primary-dark: #1d4ed8;
+      --primary-light: #eff6ff;
+      --accent: #f59e0b;
       --bg: #f8fafc;
       --surface: #ffffff;
       --text: #0f172a;
       --text-muted: #64748b;
       --border: #e2e8f0;
-      --accent: #f59e0b;
-      --success: #10b981;
       --radius: 16px;
-      --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans Georgian', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: #0f172a; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Noto Sans Georgian', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-    /* Phone Shell Container */
-    #app-container {
+    body {
+      background-color: #0f172a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: var(--text);
+    }
+
+    /* Mobile Container for Responsive / Desktop Layout */
+    .app-container {
       width: 100%;
-      max-width: 390px;
+      max-width: 430px;
       height: 100vh;
-      max-height: 844px;
-      background-color: var(--bg);
+      max-height: 932px;
+      background: var(--bg);
       position: relative;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
 
-    @media (min-width: 450px) {
-      #app-container { height: 92vh; border-radius: 40px; border: 8px solid #1e293b; }
+    @media (min-width: 500px) {
+      .app-container {
+        border-radius: 36px;
+        height: 90vh;
+        border: 8px solid #1e293b;
+      }
     }
 
-    /* Scrollable Screen Content */
-    .screen { flex: 1; overflow-y: auto; display: flex; flex-direction: column; position: relative; padding-bottom: 70px; }
-    .screen.no-pb { padding-bottom: 0; }
+    /* Screen Views */
+    .screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow-y: auto;
+      position: relative;
+      padding-bottom: 80px;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* Top Bar Header */
+    .top-header {
+      background: var(--surface);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--primary);
+    }
+
+    .lang-switcher select {
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: var(--surface);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* Search & Category Chips overlay */
+    .map-overlay {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      z-index: 400;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .search-box {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .search-box input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 14px;
+    }
+
+    .chips-wrapper {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .chips-wrapper::-webkit-scrollbar { display: none; }
+
+    .chip {
+      background: var(--surface);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .chip.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Map container */
+    #map {
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* Bottom Preview Card */
+    .bottom-preview-card {
+      position: absolute;
+      bottom: 90px;
+      left: 12px;
+      right: 12px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      z-index: 500;
+      display: none;
+      gap: 12px;
+    }
+
+    .bottom-preview-card img {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+
+    .bottom-preview-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
     /* Bottom Navigation Bar */
-    .nav-bar {
-      position: absolute; bottom: 0; left: 0; right: 0; height: 65px;
-      background: var(--surface); border-top: 1px solid var(--border);
-      display: flex; justify-content: space-around; align-items: center; z-index: 1000;
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1000;
+      padding-bottom: 8px;
     }
+
     .nav-item {
-      display: flex; flex-direction: column; align-items: center; gap: 3px;
-      background: none; border: none; color: var(--text-muted); font-size: 11px; font-weight: 500;
-      cursor: pointer; width: 20%; min-height: 44px; justify-content: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 20%;
     }
-    .nav-item.active { color: var(--primary); font-weight: 600; }
-    .nav-item svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
 
-    /* Common Components */
+    .nav-item.active {
+      color: var(--primary);
+    }
+
     .btn {
-      width: 100%; min-height: 48px; background: var(--primary); color: white;
-      border: none; border-radius: var(--radius); font-weight: 600; font-size: 15px;
-      display: flex; justify-content: center; align-items: center; gap: 8px; cursor: pointer;
-    }
-    .btn:active { background: var(--primary-dark); }
-    .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
-    .btn-sm { min-height: 36px; font-size: 13px; padding: 0 14px; border-radius: 10px; width: auto; }
-
-    .card { background: var(--surface); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border); margin-bottom: 12px; }
-    .header { padding: 16px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
-    .header h2 { font-size: 18px; font-weight: 700; flex: 1; }
-
-    .chip-list { display: flex; gap: 8px; overflow-x: auto; padding: 8px 16px; scrollbar-width: none; }
-    .chip-list::-webkit-scrollbar { display: none; }
-    .chip {
-      padding: 8px 16px; border-radius: 20px; background: var(--surface);
-      border: 1px solid var(--border); font-size: 13px; white-space: nowrap; cursor: pointer;
-    }
-    .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-    /* Map UI */
-    #map { width: 100%; height: 100%; z-index: 1; }
-    .map-overlay { position: absolute; top: 12px; left: 12px; right: 12px; z-index: 500; display: flex; flex-direction: column; gap: 8px; }
-    .search-box {
-      background: var(--surface); border-radius: 24px; padding: 10px 16px;
-      display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow); border: 1px solid var(--border);
-    }
-    .search-box input { border: none; outline: none; width: 100%; font-size: 14px; background: transparent; }
-
-    .bottom-preview {
-      position: absolute; bottom: 75px; left: 12px; right: 12px; z-index: 500;
-      background: var(--surface); border-radius: var(--radius); padding: 14px;
-      box-shadow: var(--shadow); border: 1px solid var(--border); display: flex; gap: 12px;
-    }
-    .bottom-preview img { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; }
-
-    .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; background: #eff6ff; color: var(--primary); }
-    .badge-success { background: #ecfdf5; color: var(--success); }
-
-    /* Form Controls */
-    .input-group { margin-bottom: 14px; }
-    .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
-    .input-group input, .input-group select, .input-group textarea {
-      width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border);
-      outline: none; font-size: 14px; background: var(--surface);
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
     }
 
-    /* Modal Sheet */
-    .modal { position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; flex-direction: column; justify-content: flex-end; }
-    .modal-content { background: var(--surface); border-radius: 24px 24px 0 0; padding: 20px; max-height: 85%; overflow-y: auto; }
+    .btn-secondary {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin: 12px;
+      border: 1px solid var(--border);
+    }
+
+    /* Role Badge */
+    .role-toggle {
+      display: flex;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+    .role-btn {
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .role-btn.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
   </style>
 </head>
 <body>
 
-<div id="app-container">
-  <!-- Dynamic Screen Area -->
-  <div id="screen-container" class="screen"></div>
-
-  <!-- Bottom Navigation Bar -->
-  <nav class="nav-bar" id="nav-bar">
-    <button class="nav-item active" onclick="switchTab('map')">
-      <svg viewBox="0 0 24 24"><path d="M9 20l-6-3V4l6 3 6-3 6 3v13l-6-3-6 3z"/></svg>
-      <span id="txt-nav-map">რუკა</span>
-    </button>
-    <button class="nav-item" onclick="switchTab('planner')">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-      <span id="txt-nav-planner">AI გეგმა</span>
-    </button>
-    <button class="nav-item" onclick="switchTab('bookings')">
-      <svg viewBox="0 0 24 24"><path d="M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zM16 2v4M8 2v4M3 10h18"/></svg>
-      <span id="txt-nav-bookings">ჯავშნები</span>
-    </button>
-    <button class="nav-item" onclick="switchTab('profile')">
-      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      <span id="txt-nav-profile">პროფილი</span>
-    </button>
-  </nav>
-
-  <!-- Modal Container -->
-  <div id="modal-container"></div>
-</div>
-
-<!-- Leaflet JS for OpenStreetMap -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<script>
-/* ================= 1. STATE & SAMPLE DATA ================= */
-const DATA = {
-  lang: 'ka',
-  role: 'customer', // 'customer' or 'owner'
-  user: { name: 'მარიამი', points: 140, isAuth: true },
-  currentTab: 'map',
-  selectedCategory: 'all',
-  selectedBiz: null,
-  activeBooking: null,
-  
-  // Real Business Data in Akhaltsikhe & Region
-  businesses: [
-    {
-      id: 1, name: 'Rabati Castle Guesthouse', cat: 'hotels', lat: 41.6425, lng: 42.9802,
-      price: 80, rating: 4.9, reviews: 38,
-      img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400',
-      desc: 'საოჯახო სასტუმრო რაბათის ციხის ძირში, ულამაზესი ხედებითა და ტრადიციული საუზმით.',
-      services: [{ id: 101, title: 'ორადგილიანი ნომერი (1 ღამე)', price: 80 }]
-    },
-    {
-      id: 2, name: 'Café Mimino', cat: 'cafes', lat: 41.6391, lng: 42.9825,
-      price: 25, rating: 4.7, reviews: 52,
-      img: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400',
-      desc: 'უგემრიელესი ადგილობრივი მესხური კერძები, თუთის არყის დაგემოვნება და მესხური ხაჭაპური.',
-      services: [{ id: 201, title: 'მაგიდის დაჯავშნა + სადეგუსტაციო მენიუ', price: 25 }]
-    },
-    {
-      id: 3, name: 'Meskhian Glow Beauty Salon', cat: 'salons', lat: 41.6380, lng: 42.9850,
-      price: 35, rating: 4.8, reviews: 29,
-      img: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400',
-      desc: 'სრული ესთეტიკური სერვისი ახალციხის ცენტრში: ვარცხნილობა, მაკიაჟი, ფრჩხილების მოვლა.',
-      services: [
-        { id: 301, title: 'თმის დავარცხნა & სტილი', price: 25 },
-        { id: 302, title: 'სადღესასწაულო მაკიაჟი', price: 45 }
-      ]
-    },
-    {
-      id: 4, name: 'Vardzia & Rabati Local Guide', cat: 'guides', lat: 41.6398, lng: 42.9810,
-      price: 100, rating: 5.0, reviews: 64,
-      img: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=400',
-      desc: 'სერტიფიცირებული გიდი სამცხე-ჯავახეთში. ვარძიის, რაბათისა და საფარის დეტალური ტურები.',
-      services: [{ id: 401, title: 'სრული დღის გიდის მომსახურება', price: 100 }]
-    }
-  ],
-
-  bookings: [
-    { id: 'BK-8821', bizName: 'Rabati Castle Guesthouse', service: 'ორადგილიანი ნომერი', date: '2026-09-25', time: '14:00', price: 80, deposit: 16, status: 'confirmed' }
-  ]
-};
-
-/* ================= 2. TRANSLATIONS ================= */
-const I18N = {
-  ka: {
-    map: 'რუკა', planner: 'AI გეგმა', bookings: 'ჯავშნები', profile: 'პროფილი',
-    all: 'ყველა', hotels: 'სასტუმროები', cafes: 'კაფეები', salons: 'სალონები', guides: 'გიდები',
-    book: 'დაჯავშნა', price_from: 'დან', deposit: '20% დეპოზიტი', confirm_pay: 'დაჯავშნა და გადახდა',
-    ai_title: 'AI მოგზაურობის დაგეგმვა', ai_desc: 'მიუთითეთ ბიუჯეტი და AI შეგიდგენთ ოპტიმალურ მარშრუტს.',
-    budget: 'ბიუჯეტი (₾)', days: 'დღეების რაოდენობა', generate: 'მარშრუტის შექმნა',
-    owner_panel: 'ბიზნესის პანელი', reg_biz: 'ბიზნესის დამატება (უფასო)'
-  },
-  en: {
-    map: 'Map', planner: 'AI Plan', bookings: 'Bookings', profile: 'Profile',
-    all: 'All', hotels: 'Hotels', cafes: 'Cafes', salons: 'Salons', guides: 'Guides',
-    book: 'Book Now', price_from: 'From', deposit: '20% Deposit', confirm_pay: 'Book & Pay Deposit',
-    ai_title: 'AI Trip Planner', ai_desc: 'Set your budget and AI will generate an optimal itinerary.',
-    budget: 'Budget (₾)', days: 'Days', generate: 'Generate Plan',
-    owner_panel: 'Business Dashboard', reg_biz: 'Register Business (Free)'
-  }
-};
-
-function t(key) { return I18N[DATA.lang][key] || key; }
-
-/* ================= 3. RENDER SCREENS ================= */
-let leafletMap = null;
-
-function renderApp() {
-  const container = document.getElementById('screen-container');
-  const nav = document.getElementById('nav-bar');
-  
-  // Toggle Nav Bar Visibility for Owner mode
-  nav.style.display = DATA.role === 'owner_dash' ? 'none' : 'flex';
-
-  if (DATA.currentTab === 'map') renderMapScreen(container);
-  else if (DATA.currentTab === 'planner') renderPlannerScreen(container);
-  else if (DATA.currentTab === 'bookings') renderBookingsScreen(container);
-  else if (DATA.currentTab === 'profile') renderProfileScreen(container);
-  else if (DATA.currentTab === 'biz_detail') renderBizDetailScreen(container);
-  else if (DATA.currentTab === 'owner_dash') renderOwnerDashboard(container);
-}
-
-/* --- MAP SCREEN --- */
-function renderMapScreen(container) {
-  container.className = 'screen no-pb';
-  container.innerHTML = `
-    <div class="map-overlay">
-      <div class="search-box">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        <input type="text" placeholder="მოძებნე ახალციხეში..." oninput="filterSearch(this.value)">
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <div class="top-header">
+      <div class="logo-area">
+        <i data-lucide="map-pin"></i>
+        <span>GeoRegion</span>
       </div>
-      <div class="chip-list">
-        <button class="chip ${DATA.selectedCategory==='all'?'active':''}" onclick="setCategory('all')">${t('all')}</button>
-        <button class="chip ${DATA.selectedCategory==='hotels'?'active':''}" onclick="setCategory('hotels')">${t('hotels')}</button>
-        <button class="chip ${DATA.selectedCategory==='cafes'?'active':''}" onclick="setCategory('cafes')">${t('cafes')}</button>
-        <button class="chip ${DATA.selectedCategory==='salons'?'active':''}" onclick="setCategory('salons')">${t('salons')}</button>
-        <button class="chip ${DATA.selectedCategory==='guides'?'active':''}" onclick="setCategory('guides')">${t('guides')}</button>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <div class="role-toggle">
+          <div class="role-btn active" id="role-cust" onclick="setRole('customer')">მომხმარებელი</div>
+          <div class="role-btn" id="role-biz" onclick="setRole('business')">ბიზნესი</div>
+        </div>
       </div>
     </div>
 
-    <div id="map"></div>
-
-    ${DATA.selectedBiz ? `
-      <div class="bottom-preview" onclick="openBizDetail(${DATA.selectedBiz.id})">
-        <img src="${DATA.selectedBiz.img}" alt="">
-        <div style="flex:1">
-          <span class="badge">${t(DATA.selectedBiz.cat)}</span>
-          <h4 style="font-size:14px; margin:4px 0;">${DATA.selectedBiz.name}</h4>
-          <div style="font-size:12px; color:var(--text-muted)">★ ${DATA.selectedBiz.rating} (${DATA.selectedBiz.reviews})</div>
-          <div style="font-size:13px; font-weight:700; margin-top:4px;">${t('price_from')} ₾${DATA.selectedBiz.price}</div>
+    <!-- 1. MAP SCREEN (Home) -->
+    <div id="screen-map" class="screen active" style="padding-bottom: 70px;">
+      <div class="map-overlay">
+        <div class="search-box">
+          <i data-lucide="search" style="color: var(--text-muted)"></i>
+          <input type="text" placeholder="ძიება ახალციხეში... (მაგ: რაბათი, სასტუმრო)">
         </div>
-        <button class="btn btn-sm" onclick="event.stopPropagation(); openBizDetail(${DATA.selectedBiz.id})">${t('book')}</button>
+        <div class="chips-wrapper">
+          <div class="chip active" onclick="filterCategory('all', this)">ყველა</div>
+          <div class="chip" onclick="filterCategory('hotel', this)">🏨 სასტუმროები</div>
+          <div class="chip" onclick="filterCategory('cafe', this)">☕ კაფე & ბარი</div>
+          <div class="chip" onclick="filterCategory('salon', this)">✂️ სალონები</div>
+          <div class="chip" onclick="filterCategory('guide', this)">🗺️ გიდები & ტურები</div>
+        </div>
       </div>
-    ` : ''}
-  `;
 
-  // Init Leaflet Map
-  setTimeout(() => {
-    if (leafletMap) leafletMap.remove();
-    leafletMap = L.map('map', { zoomControl: false }).setView([41.6398, 42.9825], 14); // Akhaltsikhe Center
-    
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19, attribution: '© OpenStreetMap'
-    }).addTo(leafletMap);
+      <div id="map"></div>
 
-    // Filter Markers
-    const filtered = DATA.selectedCategory === 'all' 
-      ? DATA.businesses 
-      : DATA.businesses.filter(b => b.cat === DATA.selectedCategory);
+      <!-- Preview Bottom Card -->
+      <div id="preview-card" class="bottom-preview-card">
+        <img id="prev-img" src="" alt="Business">
+        <div class="bottom-preview-info">
+          <div>
+            <div style="font-weight: 700; font-size: 15px;" id="prev-title">ლოკაცია</div>
+            <div style="font-size: 12px; color: var(--text-muted);" id="prev-cat">კატეგორია</div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+            <div style="font-weight: 700; color: var(--primary);" id="prev-price">₾0-დან</div>
+            <button class="btn" style="padding: 6px 12px; font-size: 12px;" onclick="openDetails()">დაჯავშნა</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    filtered.forEach(b => {
-      const marker = L.marker([b.lat, b.lng]).addTo(leafletMap);
-      marker.on('click', () => {
-        DATA.selectedBiz = b;
-        renderApp();
+    <!-- 2. AI TRIP PLANNER -->
+    <div id="screen-ai" class="screen">
+      <div class="card" style="margin-top: 16px;">
+        <h3 style="display:flex; align-items:center; gap:8px;">
+          <i data-lucide="sparkles" style="color: var(--accent);"></i>
+          AI ტურისტული დაგეგმარება
+        </h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+          შეიყვანეთ ბიუჯეტი და დღეების რაოდენობა. AI შეადგენს ტურს მხოლოდ რეალური ადგილობრივი ლოკაციებით.
+        </p>
+
+        <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 12px;">
+          <div>
+            <label style="font-size: 12px; font-weight:600;">ბიუჯეტი (₾)</label>
+            <input type="number" value="250" style="width: 100%; padding: 10px; border-radius: 8px; border:1px solid var(--border); margin-top:4px;">
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight:600;">დღეების რაოდენობა</label>
+            <input type="number" value="2" style="width: 100%; padding: 10px; border-radius: 8px; border:1px solid var(--border); margin-top:4px;">
+          </div>
+          <button class="btn" onclick="generateAITrip()"><i data-lucide="cpu"></i> გეგმის გენერაცია</button>
+        </div>
+      </div>
+
+      <div id="ai-results" style="padding: 0 12px;"></div>
+    </div>
+
+    <!-- 3. MY BOOKINGS -->
+    <div id="screen-bookings" class="screen">
+      <div style="padding: 16px 16px 0 16px; font-weight:700; font-size: 18px;">ჩემი ჯავშნები</div>
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-weight:700;">სასტუმრო "ძველი რაბათი"</span>
+          <span style="background:#dcfce7; color:#15803d; padding:4px 8px; border-radius:6px; font-size:11px; font-weight:600;">დადასტურებულია</span>
+        </div>
+        <div style="font-size:13px; color:var(--text-muted); margin-top:8px;">📅 24 სექტემბერი, 2026</div>
+        <div style="font-size:13px; color:var(--text-muted);">💰 დეპოზიტი გადახდილია: ₾24 (სულ ₾120)</div>
+        <div style="display:flex; gap:8px; margin-top:12px;">
+          <button class="btn btn-secondary" style="flex:1; font-size:12px;"><i data-lucide="message-square"></i> ჩატი</button>
+          <button class="btn" style="flex:1; font-size:12px; background:#ef4444;">გაუქმება</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. PROFILE & LOYALTY -->
+    <div id="screen-profile" class="screen">
+      <div class="card" style="text-align: center; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white;">
+        <div style="font-size: 32px; font-weight: 700;">120</div>
+        <div style="font-size: 13px; opacity: 0.9;">დაგროვილი ქულები (GeoPoints)</div>
+      </div>
+
+      <div style="padding: 0 16px; font-weight:700; font-size:16px;">ბონუსების გაცვლა</div>
+      
+      <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-weight:600; font-size:14px;">უფასო ყავა "Cafe Rabati"-ში</div>
+          <div style="font-size:12px; color:var(--text-muted);">ღირებულება: 50 ქულა</div>
+        </div>
+        <button class="btn" style="padding:6px 12px; font-size:12px;">მიღება</button>
+      </div>
+    </div>
+
+    <!-- 5. BUSINESS DASHBOARD (For Business Owners) -->
+    <div id="screen-business" class="screen">
+      <div style="padding: 16px; font-weight:700; font-size:18px;">ბიზნესის მართვის პანელი</div>
+      
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; padding:0 12px;">
+        <div class="card" style="margin:0; text-align:center;">
+          <div style="font-size:20px; font-weight:700; color:var(--primary);">₾1,480</div>
+          <div style="font-size:11px; color:var(--text-muted);">თვის შემოსავალი</div>
+        </div>
+        <div class="card" style="margin:0; text-align:center;">
+          <div style="font-size:20px; font-weight:700; color:var(--accent);">10%</div>
+          <div style="font-size:11px; color:var(--text-muted);">საკომისიო (₾148)</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h4>დღევანდელი ჯავშნები (3)</h4>
+        <div style="border-top:1px solid var(--border); margin-top:8px; padding-top:8px; font-size:13px;">
+          <div><strong>გიორგი მაისურაძე</strong> - საოჯახო ნომერი</div>
+          <div style="color:var(--text-muted); font-size:11px;">14:00 • დეპოზიტი: ₾30 გადახდილია</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <div class="nav-item active" onclick="switchTab('map', this)">
+        <i data-lucide="map"></i>
+        <span>რუკა</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('ai', this)">
+        <i data-lucide="sparkles"></i>
+        <span>AI ტური</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('bookings', this)">
+        <i data-lucide="calendar"></i>
+        <span>ჯავშნები</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('profile', this)">
+        <i data-lucide="gift"></i>
+        <span>ბონუსები</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    // Initialize Icons
+    lucide.createIcons();
+
+    // Sample Businesses in Akhaltsikhe
+    const businesses = [
+      { id: 1, name: 'სასტუმრო "ძველი რაბათი"', cat: 'hotel', lat: 41.6425, lng: 42.9811, price: 120, img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200' },
+      { id: 2, name: 'კაფე "რაბათის ტერასა"', cat: 'cafe', lat: 41.6432, lng: 42.9825, price: 25, img: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=200' },
+      { id: 3, name: 'ვარძიის საექსკურსიო ტური & გიდი', cat: 'guide', lat: 41.6390, lng: 42.9850, price: 80, img: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=200' },
+      { id: 4, name: 'სილამაზის სალონი "Glamour Akhaltsikhe"', cat: 'salon', lat: 41.6380, lng: 42.9800, price: 30, img: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=200' }
+    ];
+
+    let map;
+    let selectedBiz = null;
+
+    // Load Map safely after DOM is ready
+    window.addEventListener('load', () => {
+      map = L.map('map', { zoomControl: false }).setView([41.6416, 42.9822], 14);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+
+      // Add Markers
+      businesses.forEach(b => {
+        const marker = L.marker([b.lat, b.lng]).addTo(map);
+        marker.on('click', () => {
+          selectedBiz = b;
+          document.getElementById('prev-title').innerText = b.name;
+          document.getElementById('prev-cat').innerText = b.cat.toUpperCase();
+          document.getElementById('prev-price').innerText = `₾${b.price}-დან`;
+          document.getElementById('prev-img').src = b.img;
+          document.getElementById('preview-card').style.display = 'flex';
+        });
       });
     });
-  }, 50);
-}
 
-/* --- BUSINESS DETAIL SCREEN --- */
-function renderBizDetailScreen(container) {
-  container.className = 'screen';
-  const b = DATA.selectedBiz;
-  container.innerHTML = `
-    <div class="header">
-      <button class="btn-outline btn-sm" onclick="switchTab('map')">←</button>
-      <h2>${b.name}</h2>
-    </div>
-    <img src="${b.img}" style="width:100%; height:200px; object-fit:cover;">
-    <div style="padding:16px">
-      <div style="display:flex; justify-scale:space-between; align-items:center; margin-bottom:12px;">
-        <span class="badge badge-success">✓ გადამოწმებული ობიექტი</span>
-        <span style="font-weight:700; color:var(--accent);">★ ${b.rating} (${b.reviews})</span>
-      </div>
-      <p style="font-size:14px; color:var(--text-muted); margin-bottom:16px;">${b.desc}</p>
+    // Tab Switching
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-      <h3 style="font-size:16px; margin-bottom:12px;">სერვისები & ფასები</h3>
-      ${b.services.map(s => `
-        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div style="font-weight:600; font-size:14px;">${s.title}</div>
-            <div style="font-size:13px; color:var(--primary); font-weight:700;">₾${s.price}</div>
-          </div>
-          <button class="btn btn-sm" onclick="startBooking(${b.id}, ${s.id})">${t('book')}</button>
-        </div>
-      `).map(x=>x).join('')}
-    </div>
-  `;
-}
+      document.getElementById(`screen-${tabId}`).classList.add('active');
+      if (el) el.classList.add('active');
 
-/* --- AI PLANNER SCREEN --- */
-function renderPlannerScreen(container) {
-  container.className = 'screen';
-  container.innerHTML = `
-    <div class="header"><h2>${t('ai_title')}</h2></div>
-    <div style="padding:16px;">
-      <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">${t('ai_desc')}</p>
-      
-      <div class="card">
-        <div class="input-group">
-          <label>${t('budget')}</label>
-          <input type="number" id="plan-budget" value="200">
-        </div>
-        <div class="input-group">
-          <label>${t('days')}</label>
-          <select id="plan-days"><option>1 დღე</option><option>2 დღე</option></select>
-        </div>
-        <button class="btn" onclick="generateAIPlan()">${t('generate')}</button>
-      </div>
+      if(tabId === 'map' && map) {
+        setTimeout(() => map.invalidateSize(), 200);
+      }
+    }
 
-      <div id="ai-results"></div>
-    </div>
-  `;
-}
+    // Role Switching (Customer / Business)
+    function setRole(role) {
+      document.getElementById('role-cust').classList.toggle('active', role === 'customer');
+      document.getElementById('role-biz').classList.toggle('active', role === 'business');
 
-function generateAIPlan() {
-  const res = document.getElementById('ai-results');
-  res.innerHTML = `
-    <div class="card" style="margin-top:16px; border-color:var(--primary);">
-      <span class="badge">დღე 1 - ახალციხე & რაბათი</span>
-      <h4 style="margin:8px 0;">10:00 - Rabati Castle Tour</h4>
-      <p style="font-size:12px; color:var(--text-muted);">გიდი: ₾50 · 2 საათი</p>
-      <hr style="margin:8px 0; border:none; border-top:1px solid var(--border)">
-      <h4 style="margin:8px 0;">13:00 - სადილი Café Mimino-ში</h4>
-      <p style="font-size:12px; color:var(--text-muted);">მესხური მენიუ: ₾25</p>
-      <button class="btn btn-sm" style="margin-top:12px; width:100%;" onclick="alert('ყველა სერვისი დაჯავშნილია ერთად!')">ყველაფრის დაჯავშნა (₾75)</button>
-    </div>
-  `;
-}
+      if (role === 'business') {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('screen-business').classList.add('active');
+      } else {
+        switchTab('map');
+      }
+    }
 
-/* --- BOOKINGS SCREEN --- */
-function renderBookingsScreen(container) {
-  container.className = 'screen';
-  container.innerHTML = `
-    <div class="header"><h2>${t('bookings')}</h2></div>
-    <div style="padding:16px;">
-      ${DATA.bookings.map(bk => `
+    // Category Filtering
+    function filterCategory(cat, el) {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    // AI Planner Generator Mock
+    function generateAITrip() {
+      const results = document.getElementById('ai-results');
+      results.innerHTML = `
         <div class="card">
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-            <span class="badge badge-success">${bk.status === 'confirmed' ? 'დადასტურებული' : 'მოოდინში'}</span>
-            <span style="font-size:12px; font-weight:700;">#${bk.id}</span>
-          </div>
-          <h4>${bk.bizName}</h4>
-          <p style="font-size:13px; color:var(--text-muted);">${bk.service}</p>
-          <div style="margin:8px 0; font-size:13px;">📅 ${bk.date} \vert{} ⏰${bk.time}</div>
-          <div style="font-size:12px; color:var(--text-muted); background:var(--bg); padding:8px; border-radius:8px;">
-            სულ: ₾${bk.price} \vert{} ონლაინ დეპოზიტი (20\%): <b>₾${bk.deposit}</b> (გადახდილია)
+          <h4 style="color:var(--primary);">დღე 1: ახალციხის ისტორია</h4>
+          <p style="font-size:12px; margin-top:4px;">• 10:00 - რაბათის ციხის დათვალიერება (გიდი)</p>
+          <p style="font-size:12px;">• 13:00 - სადილი კაფე "რაბათის ტერასაზე"</p>
+          <div style="margin-top:10px; font-weight:700; font-size:13px; display:flex; justify-content:space-between;">
+            <span>ჯამური ღირებულება: ₾105</span>
+            <span style="color:var(--primary); cursor:pointer;" onclick="alert('ყველა სერვისი წარმატებით დაიჯავშნა!')">ყველას დაჯავშნა</span>
           </div>
         </div>
-      `).join('')}
-    </div>
-  `;
-}
+      `;
+    }
 
-/* --- PROFILE SCREEN --- */
-function renderProfileScreen(container) {
-  container.className = 'screen';
-  container.innerHTML = `
-    <div class="header"><h2>${t('profile')}</h2></div>
-    <div style="padding:16px;">
-      <div class="card" style="text-align:center; padding:24px;">
-        <div style="width:60px; height:60px; border-radius:50%; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:700; margin:0 auto 12px;">M</div>
-        <h3>${DATA.user.name}</h3>
-        <p style="font-size:13px; color:var(--text-muted);">+995 591 ** ** **</p>
-        <div style="margin-top:12px; display:inline-block;" class="badge">🎁 ლოიალობის ქულები: <b>${DATA.user.points} B-Coins</b></div>
-      </div>
-
-      <div class="card">
-        <h4>ენა / Language</h4>
-        <div style="display:flex; gap:8px; margin-top:8px;">
-          <button class="btn btn-sm ${DATA.lang==='ka'?'':'btn-outline'}" onclick="setLang('ka')">ქართული</button>
-          <button class="btn btn-sm ${DATA.lang==='en'?'':'btn-outline'}" onclick="setLang('en')">English</button>
-        </div>
-      </div>
-
-      <div class="card" style="background:#eff6ff; border-color:var(--primary);">
-        <h4>ბიზნესის მფლობელი ხართ?</h4>
-        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 12px;">მართეთ თქვენი ჯავშნები უფასოდ მობილურიდან.</p>
-        <button class="btn btn-sm" onclick="switchRole('owner_dash')">${t('owner_panel')}</button>
-      </div>
-    </div>
-  `;
-}
-
-/* --- OWNER DASHBOARD --- */
-function renderOwnerDashboard(container) {
-  container.className = 'screen';
-  container.innerHTML = `
-    <div class="header">
-      <button class="btn-outline btn-sm" onclick="switchRole('customer')">← მომხმარებელი</button>
-      <h2>ბიზნესის მართვა</h2>
-    
+    function openDetails() {
+      alert(`გადადიხართ ${selectedBiz ? selectedBiz.name : 'ობიექტის'} დაჯავშნაზე!`);
+    }
+  </script>
+</body>
+</html>
