@@ -3,44 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>GeoRegion - საქართველოს 3D Vector რუკა</title>
+  <title>GeoRegion Akhaltsikhe - ლოკალური გიდი & ჯავშნები</title>
   
-  <meta name="theme-color" content="#8b5cf6">
+  <meta name="theme-color" content="#1a1225">
   <meta name="apple-mobile-web-app-capable" content="yes">
 
-  <!-- Google Fonts -->
+  <!-- Noto Sans Georgian Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Leaflet CSS -->
+  <!-- Leaflet Map CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
     :root {
-      --bg-gradient: linear-gradient(135deg, #1e0b36 0%, #2e1065 50%, #4c1d95 100%);
-      --surface-card: rgba(255, 255, 255, 0.12);
-      --text: #ffffff;
-      --text-muted: #d8b4fe;
-      --primary: #c084fc;
-      --primary-accent: #a855f7;
-      --map-region-fill: rgba(168, 85, 247, 0.25);
-      --map-region-stroke: #c084fc;
-      --glass-border: rgba(255, 255, 255, 0.2);
-    }
-
-    [data-theme="light"] {
-      --bg-gradient: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 50%, #c084fc 100%);
-      --surface-card: rgba(255, 255, 255, 0.7);
-      --text: #3b0764;
-      --text-muted: #6b21a8;
-      --primary: #7e22ce;
-      --primary-accent: #9333ea;
-      --map-region-fill: rgba(126, 34, 206, 0.2);
-      --map-region-stroke: #7e22ce;
-      --glass-border: rgba(126, 34, 206, 0.3);
+      --bg-dark: #120c1b;
+      --bg-surface: #1a1225;
+      --card-bg: rgba(35, 26, 50, 0.9);
+      --card-solid: #231a32;
+      --accent: #f59e0b; /* Warm Amber */
+      --accent-hover: #d97706;
+      --accent-light: rgba(245, 158, 11, 0.15);
+      --text: #f8fafc;
+      --text-muted: #a78bfa;
+      --text-sub: #94a3b8;
+      --border: rgba(167, 139, 250, 0.2);
+      --radius: 18px;
+      --shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.6);
     }
 
     * {
@@ -49,11 +41,10 @@
       padding: 0;
       font-family: 'Noto Sans Georgian', -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
-      transition: background 0.3s ease, color 0.3s ease;
     }
 
     body {
-      background-color: #0b0f19;
+      background-color: #09050e;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -61,209 +52,248 @@
       color: var(--text);
     }
 
-    .app-container {
+    /* 390px Mobile App Container */
+    .app-viewport {
       width: 100%;
-      max-width: 430px;
+      max-width: 390px;
       height: 100vh;
-      max-height: 932px;
-      background: var(--bg-gradient);
+      max-height: 844px;
+      background: var(--bg-surface);
       position: relative;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
     }
 
-    @media (min-width: 500px) {
-      .app-container {
+    @media (min-width: 440px) {
+      .app-viewport {
         border-radius: 40px;
-        height: 90vh;
-        border: 8px solid #1e1b4b;
+        height: 92vh;
+        border: 6px solid #2d1f42;
       }
     }
 
-    /* Top Header */
-    .top-header {
-      padding: 14px 18px;
+    /* Header Bar */
+    .app-header {
+      padding: 12px 16px;
+      background: rgba(26, 18, 37, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--glass-border);
-      z-index: 100;
+      z-index: 1000;
     }
 
-    .logo-area {
+    .app-title {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       font-weight: 800;
-      font-size: 19px;
+      font-size: 18px;
       color: var(--text);
     }
 
-    .theme-toggle {
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid var(--glass-border);
-      color: var(--text);
-      padding: 6px 12px;
-      border-radius: 12px;
+    .app-title span {
+      color: var(--accent);
+    }
+
+    .role-switcher {
+      background: var(--accent-light);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
+      gap: 4px;
     }
 
-    /* Navigation Screens */
+    /* Tab Screens Container */
+    .screen-container {
+      flex: 1;
+      position: relative;
+      overflow-y: auto;
+      padding-bottom: 75px;
+    }
+
     .screen {
       display: none;
-      flex: 1;
       flex-direction: column;
-      position: relative;
-      padding-bottom: 80px;
-      overflow-y: auto;
+      min-height: 100%;
     }
 
     .screen.active {
       display: flex;
     }
 
-    /* FLOATING VECTOR MAP CONTAINER */
-    .map-screen-wrapper {
-      flex: 1;
+    /* Category Filter Chips */
+    .chips-scroll {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 12px;
-      position: relative;
-      perspective: 1000px;
-    }
-
-    .map-header-text {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-
-    .map-header-text h2 {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--text);
-    }
-
-    .map-header-text p {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    /* Floating SVG Container */
-    .svg-map-container {
-      width: 100%;
-      max-width: 390px;
-      height: 320px;
-      position: relative;
-      transform-style: preserve-3d;
-      transform: rotateX(18deg) rotateZ(-1deg);
-      animation: floatMap 5s ease-in-out infinite;
-      filter: drop-shadow(0 20px 25px rgba(0, 0, 0, 0.4));
-    }
-
-    @keyframes floatMap {
-      0%, 100% { transform: rotateX(18deg) rotateZ(-1deg) translateY(0px); }
-      50% { transform: rotateX(22deg) rotateZ(-1deg) translateY(-10px); }
-    }
-
-    /* SVG Map Styling */
-    svg.georgia-svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    .region-path {
-      fill: var(--map-region-fill);
-      stroke: var(--map-region-stroke);
-      stroke-width: 1.5;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .region-path:hover, .region-path:active {
-      fill: var(--primary-accent);
-      stroke: #ffffff;
-      stroke-width: 2.5;
-      filter: drop-shadow(0 0 12px rgba(192, 132, 252, 0.8));
-    }
-
-    .region-text {
-      fill: var(--text);
-      font-size: 8px;
-      font-weight: 700;
-      pointer-events: none;
-      text-anchor: middle;
-      user-select: none;
-    }
-
-    /* Detailed Leaflet Map View */
-    #map-wrapper {
-      width: 100%;
-      height: 100%;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 12px 16px;
       position: absolute;
       top: 0;
       left: 0;
-      z-index: 200;
-      display: none;
-    }
-
-    #map {
-      width: 100%;
-      height: 100%;
-    }
-
-    .back-btn {
-      position: absolute;
-      top: 14px;
-      left: 14px;
+      right: 0;
       z-index: 500;
-      background: var(--bg-gradient);
-      color: white;
-      border: 1px solid var(--glass-border);
+      scrollbar-width: none;
+    }
+    .chips-scroll::-webkit-scrollbar { display: none; }
+
+    .chip {
+      background: var(--card-solid);
+      border: 1px solid var(--border);
+      color: var(--text);
       padding: 8px 14px;
-      border-radius: 12px;
+      border-radius: 24px;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 600;
+      white-space: nowrap;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
 
-    /* Card Layouts */
+    .chip.active {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+
+    .chip-gem {
+      border: 1px solid #f59e0b;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #000;
+      font-weight: 700;
+    }
+
+    /* Map Elements */
+    #map {
+      width: 100%;
+      height: 100%;
+      min-height: 520px;
+      z-index: 1;
+    }
+
+    .leaflet-popup-content-wrapper {
+      background: var(--card-solid) !important;
+      color: var(--text) !important;
+      border-radius: 14px !important;
+      border: 1px solid var(--border);
+    }
+    .leaflet-popup-tip {
+      background: var(--card-solid) !important;
+    }
+
+    /* Bottom Floating Sheet Card */
+    .bottom-sheet {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      background: var(--card-solid);
+      border-radius: var(--radius);
+      padding: 14px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      z-index: 600;
+      display: none;
+      animation: slideUp 0.25s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .sheet-card {
+      display: flex;
+      gap: 12px;
+    }
+
+    .sheet-img {
+      width: 85px;
+      height: 85px;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+
+    .sheet-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Standard Cards & Buttons */
     .card {
-      background: var(--surface-card);
-      backdrop-filter: blur(12px);
-      color: var(--text);
-      border-radius: 20px;
+      background: var(--card-solid);
+      border-radius: var(--radius);
       padding: 16px;
-      margin: 12px;
-      border: 1px solid var(--glass-border);
+      margin: 10px 16px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
     }
 
     .btn {
-      background: var(--primary-accent);
-      color: white;
+      background: var(--accent);
+      color: #000;
       border: none;
-      padding: 12px 18px;
+      padding: 12px 16px;
       border-radius: 14px;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
+      min-height: 44px;
       width: 100%;
+      transition: background 0.2s;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    /* Modal Sheet for Business Details & Booking Flow */
+    .modal-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: none;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .modal-content {
+      background: var(--bg-surface);
+      border-top-left-radius: 28px;
+      border-top-right-radius: 28px;
+      padding: 20px 16px 30px 16px;
+      max-height: 85%;
+      overflow-y: auto;
+      border-top: 1px solid var(--border);
+      animation: modalUp 0.3s ease-out;
+    }
+
+    @keyframes modalUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
     }
 
     /* Bottom Navigation Bar */
@@ -272,220 +302,293 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 72px;
-      background: rgba(255, 255, 255, 0.08);
+      height: 70px;
+      background: rgba(26, 18, 37, 0.96);
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-top: 1px solid var(--glass-border);
+      border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-around;
       align-items: center;
       z-index: 1000;
     }
 
-    .nav-item {
+    .nav-tab {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
-      color: var(--text-muted);
-      font-size: 11px;
+      color: var(--text-sub);
+      font-size: 10px;
       font-weight: 600;
       cursor: pointer;
+      width: 20%;
     }
 
-    .nav-item.active {
+    .nav-tab.active {
+      color: var(--accent);
+    }
+
+    /* Inputs & Form Elements */
+    input, select {
+      width: 100%;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
       color: var(--text);
+      font-size: 13px;
+      outline: none;
+      margin-top: 6px;
+    }
+
+    .tag {
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
     }
   </style>
 </head>
-<body data-theme="dark">
+<body>
 
-  <div class="app-container">
+  <div class="app-viewport">
     
-    <!-- Top Header -->
-    <div class="top-header">
-      <div class="logo-area">
-        <i data-lucide="compass" style="color: var(--primary)"></i>
-        <span>GeoRegion</span>
+    <!-- Top Bar Header -->
+    <header class="app-header">
+      <div class="app-title">
+        <i data-lucide="map-pin" style="color: var(--accent)"></i>
+        <span>GeoRegion <span>ახალციხე</span></span>
       </div>
-      <button class="theme-toggle" onclick="toggleTheme()">
-        <i data-lucide="moon" id="theme-icon"></i>
+      <button class="role-switcher" onclick="toggleRole()">
+        <i data-lucide="user-check" id="role-icon"></i>
+        <span id="role-text">ტურისტი</span>
       </button>
-    </div>
+    </header>
 
-    <!-- 1. FLOATING 3D GEORGIA VECTOR MAP SCREEN -->
-    <div id="screen-regions" class="screen active">
-      <div class="map-screen-wrapper">
-        <div class="map-header-text">
-          <h2>საქართველოს 3D რუკა</h2>
-          <p>დააჭირეთ რეგიონს დეტალური მეპის გასახსნელად</p>
+    <!-- MAIN SCREENS CONTAINER -->
+    <div class="screen-container">
+
+      <!-- 1. MAP & DISCOVERY TAB -->
+      <div id="tab-map" class="screen active" style="height: 100%;">
+        <!-- Category Filter Chips -->
+        <div class="chips-scroll">
+          <div class="chip chip-gem active" onclick="filterCategory('gems', this)">
+            <span>💎 Hidden Gems</span>
+          </div>
+          <div class="chip" onclick="filterCategory('all', this)">ყველა</div>
+          <div class="chip" onclick="filterCategory('hotel', this)">🏨 სასტუმროები</div>
+          <div class="chip" onclick="filterCategory('cafe', this)">🍷 კაფე & ბარი</div>
+          <div class="chip" onclick="filterCategory('tour', this)">🏛️ გიდები</div>
+          <div class="chip" onclick="filterCategory('transport', this)">🚕 ტრანსპორტი</div>
         </div>
 
-        <!-- SVG Real Georgia Map Layout -->
-        <div class="svg-map-container">
-          <svg class="georgia-svg" viewBox="0 0 800 500">
-            <!-- აფხაზეთი -->
-            <path class="region-path" onclick="openRegionMap('აფხაზეთი', 43.0015, 41.0234)" d="M 30,80 L 120,40 L 220,110 L 160,170 L 80,180 Z" />
-            <text x="110" y="105" class="region-text">აფხაზეთი</text>
-
-            <!-- ზემო სვანეთი & სამეგრელო -->
-            <path class="region-path" onclick="openRegionMap('სამეგრელო - ზემო სვანეთი', 42.5088, 41.8709)" d="M 220,110 L 320,80 L 330,160 L 220,230 L 160,170 Z" />
-            <text x="240" y="150" class="region-text">სამეგრელო - სვანეთი</text>
-
-            <!-- რაჭა-ლეჩხუმი -->
-            <path class="region-path" onclick="openRegionMap('რაჭა-ლეჩხუმი', 42.5273, 43.1555)" d="M 320,80 L 430,110 L 410,180 L 330,160 Z" />
-            <text x="370" y="135" class="region-text">რაჭა-ლეჩხუმი</text>
-
-            <!-- იმერეთი -->
-            <path class="region-path" onclick="openRegionMap('იმერეთი', 42.2662, 42.7180)" d="M 270,230 L 330,160 L 410,180 L 420,250 L 310,280 Z" />
-            <text x="340" y="220" class="region-text">იმერეთი</text>
-
-            <!-- გურია -->
-            <path class="region-path" onclick="openRegionMap('გურია', 41.9854, 42.0233)" d="M 210,230 L 270,230 L 260,280 L 200,280 Z" />
-            <text x="235" y="255" class="region-text">გურია</text>
-
-            <!-- აჭარა -->
-            <path class="region-path" onclick="openRegionMap('აჭარა', 41.6086, 42.0688)" d="M 200,280 L 280,280 L 300,340 L 210,340 Z" />
-            <text x="245" y="310" class="region-text">აჭარა</text>
-
-            <!-- სამცხე-ჯავახეთი -->
-            <path class="region-path" onclick="openRegionMap('სამცხე-ჯავახეთი', 41.6368, 42.9822)" d="M 280,280 L 420,250 L 470,330 L 330,370 Z" style="fill: var(--primary-accent); stroke: #ffffff; stroke-width: 2;" />
-            <text x="370" y="315" class="region-text">სამცხე-ჯავახეთი</text>
-
-            <!-- შიდა ქართლი -->
-            <path class="region-path" onclick="openRegionMap('შიდა ქართლი', 41.9854, 44.1084)" d="M 410,180 L 520,180 L 510,270 L 420,250 Z" />
-            <text x="460" y="225" class="region-text">შიდა ქართლი</text>
-
-            <!-- მცხეთა-მთიანეთი -->
-            <path class="region-path" onclick="openRegionMap('მცხეთა-მთიანეთი', 42.1221, 44.7500)" d="M 430,110 L 580,100 L 570,230 L 520,180 Z" />
-            <text x="500" y="145" class="region-text">მცხეთა-მთიანეთი</text>
-
-            <!-- ქვემო ქართლი -->
-            <path class="region-path" onclick="openRegionMap('ქვემო ქართლი', 41.5000, 44.8000)" d="M 470,330 L 510,270 L 610,280 L 580,380 Z" />
-            <text x="530" y="325" class="region-text">ქვემო ქართლი</text>
-
-            <!-- კახეთი -->
-            <path class="region-path" onclick="openRegionMap('კახეთი', 41.8000, 45.8000)" d="M 580,100 L 760,180 L 710,330 L 610,280 L 570,230 Z" />
-            <text x="640" y="220" class="region-text">კახეთი</text>
-          </svg>
-        </div>
-      </div>
-
-      <!-- Detailed Leaflet Map Modal View -->
-      <div id="map-wrapper">
-        <button class="back-btn" onclick="closeRegionMap()">
-          <i data-lucide="arrow-left"></i> 3D რუკაზე დაბრუნება
-        </button>
+        <!-- Leaflet Map Container -->
         <div id="map"></div>
-      </div>
-    </div>
 
-    <!-- 2. AI TRIP PLANNER -->
-    <div id="screen-ai" class="screen">
-      <div class="card">
-        <h3 style="display:flex; align-items:center; gap:8px; color:var(--primary);">
-          <i data-lucide="sparkles"></i> AI ავტომატური მარშრუტი
-        </h3>
-        <p style="font-size: 12px; opacity:0.8; margin-top: 4px;">
-          შეიყვანეთ ბიუჯეტი და დღეები. AI შეადგენს ექსკლუზიურ ტურს.
-        </p>
-        <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 10px;">
-          <input type="number" placeholder="ბიუჯეტი (₾)" value="300" style="padding: 10px; border-radius: 10px; border:none; outline:none;">
-          <button class="btn" onclick="generateAI()"><i data-lucide="cpu"></i> გეგმის გენერაცია</button>
+        <!-- Bottom Preview Sheet -->
+        <div id="bottom-sheet" class="bottom-sheet">
+          <div class="sheet-card">
+            <img id="sheet-img" src="" class="sheet-img" alt="place">
+            <div class="sheet-info">
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:start;">
+                  <h4 id="sheet-title" style="font-size: 14px; font-weight:800;"></h4>
+                  <span id="sheet-rating" style="color:var(--accent); font-size:12px; font-weight:700;">★ 4.9</span>
+                </div>
+                <p id="sheet-desc" style="font-size: 11px; color: var(--text-sub); margin-top: 3px;"></p>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                <span id="sheet-price" style="font-size: 13px; font-weight:800; color:var(--accent);"></span>
+                <button class="btn" style="padding: 6px 14px; min-height: 36px; width: auto;" onclick="openDetailsModal()">დათვალიერება</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div id="ai-res"></div>
+
+      <!-- 2. AI TRIP PLANNER TAB -->
+      <div id="tab-ai" class="screen">
+        <div class="card" style="margin-top: 14px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <i data-lucide="sparkles" style="color:var(--accent);"></i>
+            <h3 style="font-size:16px; font-weight:800;">AI ტურის დაგეგმვა</h3>
+          </div>
+          <p style="font-size: 11px; color: var(--text-sub); margin-top: 4px;">
+            შეიყვანეთ ბიუჯეტი და დღეები. AI შეადგენს ავთენტურ მარშრუტს მხოლოდ ახალციხის ლოკაციებით.
+          </p>
+
+          <div style="margin-top: 12px; display:flex; flex-direction:column; gap:10px;">
+            <div>
+              <label style="font-size: 11px; color: var(--text-muted); font-weight:600;">ბიუჯეტი (₾ GEL)</label>
+              <input type="number" id="ai-budget" value="250">
+            </div>
+            <div>
+              <label style="font-size: 11px; color: var(--text-muted); font-weight:600;">დღეების რაოდენობა</label>
+              <input type="number" id="ai-days" value="2">
+            </div>
+            <button class="btn" onclick="generateAITrip()"><i data-lucide="cpu"></i> მარშრუტის შექმნა</button>
+          </div>
+        </div>
+
+        <div id="ai-results" style="padding-bottom: 20px;"></div>
+      </div>
+
+      <!-- 3. TRANSPORT & TAXI TAB -->
+      <div id="tab-transport" class="screen">
+        <div style="padding: 14px 16px 0 16px;">
+          <h3 style="font-size: 16px; font-weight:800;">რეგიონული ტრანსპორტი & ტაქსი</h3>
+          <p style="font-size: 11px; color: var(--text-sub); margin-top: 2px;">დაფიქსირებული ტარიფები და ადგილების დაჯავშნა</p>
+        </div>
+
+        <!-- Regional Routes -->
+        <div class="card">
+          <h4 style="font-size: 13px; font-weight:800; margin-bottom:10px; color:var(--accent);">🚌 რეგიონული მარშრუტები</h4>
+          
+          <div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 0; border-bottom:1px solid var(--border);">
+            <div>
+              <div style="font-size:13px; font-weight:700;">ახალციხე ➔ ვარძია</div>
+              <div style="font-size:11px; color:var(--text-sub);">ყოველდღე: 10:00, 13:00 • 1სთ 10წთ</div>
+            </div>
+            <button class="btn" style="min-height:34px; padding:4px 10px; width:auto; font-size:11px;" onclick="bookTransport('ახალციხე - ვარძია', 12)">₾12 / სკამი</button>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 0;">
+            <div>
+              <div style="font-size:13px; font-weight:700;">ახალციხე ➔ ბორჯომი</div>
+              <div style="font-size:11px; color:var(--text-sub);">ყოველ 1 საათში • 45 წუთი</div>
+            </div>
+            <button class="btn" style="min-height:34px; padding:4px 10px; width:auto; font-size:11px;" onclick="bookTransport('ახალციხე - ბორჯომი', 7)">₾7 / სკამი</button>
+          </div>
+        </div>
+
+        <!-- Local Taxi Directory -->
+        <div class="card">
+          <h4 style="font-size: 13px; font-weight:800; margin-bottom:10px; color:var(--accent);">🚕 ლოკალური ტაქსი (ფიქსირებული ტარიფი)</h4>
+          
+          <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom:1px solid var(--border);">
+            <div>
+              <div style="font-size:13px; font-weight:700;">გიორგი (Prius)</div>
+              <div style="font-size:11px; color:var(--text-sub);">ქალაქში: ₾5 | რაბათი-საფარა: ₾20</div>
+            </div>
+            <a href="tel:+995599000000" class="btn btn-secondary" style="min-height:34px; padding:4px 10px; width:auto; font-size:11px; text-decoration:none;"><i data-lucide="phone"></i> დარეკვა</a>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0;">
+            <div>
+              <div style="font-size:13px; font-weight:700;">დათო (4x4 Delica)</div>
+              <div style="font-size:11px; color:var(--text-sub);">მთის ტურები / ვარძია-საფარა</div>
+            </div>
+            <a href="tel:+995599000000" class="btn btn-secondary" style="min-height:34px; padding:4px 10px; width:auto; font-size:11px; text-decoration:none;"><i data-lucide="phone"></i> დარეკვა</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. MY BOOKINGS & CHAT TAB -->
+      <div id="tab-bookings" class="screen">
+        <div style="padding: 14px 16px 0 16px;">
+          <h3 style="font-size: 16px; font-weight:800;">ჩემი ჯავშნები & ჩატი</h3>
+        </div>
+
+        <div id="bookings-list">
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="tag">დადასტურებულია</span>
+              <span style="font-size:11px; color:var(--text-sub);">ID: #7821</span>
+            </div>
+            <h4 style="font-size:14px; font-weight:800; margin-top:8px;">საოჯახო მარანი "მესხური თასი"</h4>
+            <div style="font-size:12px; color:var(--text-sub); margin-top:4px;">📅 28 სექტემბერი, 2026 • 18:00</div>
+            <div style="font-size:12px; font-weight:700; color:var(--accent); margin-top:4px;">20% დეპოზიტი გადახდილია (₾16)</div>
+            
+            <div style="display:flex; gap:8px; margin-top:12px;">
+              <button class="btn btn-secondary" style="min-height:36px; font-size:12px;" onclick="alert('ჩატი მფლობელთან: გამარჯობა, ველოდებით თქვენს სტუმრობას!')"><i data-lucide="message-square"></i> ჩატი მფლობელთან</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. BUSINESS OWNER DASHBOARD (TOGGLED SCREEN) -->
+      <div id="tab-business" class="screen">
+        <div style="padding: 14px 16px 0 16px;">
+          <h3 style="font-size: 16px; font-weight:800; color:var(--accent);">ბიზნესის მართვის პანელი</h3>
+          <p style="font-size: 11px; color: var(--text-sub);">საოჯახო სასტუმრო "ძველი ახალციხე"</p>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; padding:0 16px; margin-top:10px;">
+          <div class="card" style="margin:0; text-align:center;">
+            <div style="font-size:20px; font-weight:800; color:var(--accent);">₾1,240</div>
+            <div style="font-size:10px; color:var(--text-sub);">თვის შემოსავალი</div>
+          </div>
+          <div class="card" style="margin:0; text-align:center;">
+            <div style="font-size:20px; font-weight:800; color:#10b981;">18</div>
+            <div style="font-size:10px; color:var(--text-sub);">ჯავშნები</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4 style="font-size:13px; font-weight:800; margin-bottom:8px;">დღევანდელი ჯავშნები</h4>
+          <div style="padding:8px; background:rgba(0,0,0,0.2); border-radius:10px; font-size:12px;">
+            <div><strong>გიორგი ბერიძე</strong> - 2 ადგილი</div>
+            <div style="color:var(--text-sub); font-size:11px;">19:00 • დეგუსტაცია • ₾80 (დეპოზიტი ₾16)</div>
+            <div style="color:#10b981; font-size:10px; margin-top:2px;">პლატფორმის 10% საკომისიო: -₾8</div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- 3. BOOKINGS -->
-    <div id="screen-bookings" class="screen">
-      <div class="card">
-        <h3>ჩემი ჯავშნები</h3>
-        <p style="font-size:12px; margin-top:8px;">აქ გამოჩნდება თქვენ მიერ დაჯავშნილი სასტუმროები და ტურები.</p>
+    <!-- BUSINESS DETAILS & BOOKING MODAL -->
+    <div id="modal-details" class="modal-overlay">
+      <div class="modal-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <span class="tag" id="modal-cat">Hidden Gem 💎</span>
+          <i data-lucide="x" style="cursor:pointer;" onclick="closeModal()"></i>
+        </div>
+        
+        <h3 id="modal-title" style="font-size:18px; font-weight:800;"></h3>
+        <p id="modal-desc" style="font-size:12px; color:var(--text-sub); margin-top:6px;"></p>
+
+        <div style="margin-top:16px; border-top:1px solid var(--border); padding-top:12px;">
+          <h4 style="font-size:13px; font-weight:800; margin-bottom:8px;">სერვისები & ფასები:</h4>
+          <div id="modal-services"></div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <label style="font-size:11px; font-weight:700;">აირჩიეთ თარიღი:</label>
+          <input type="date" value="2026-09-25">
+        </div>
+
+        <button class="btn" style="margin-top:16px;" onclick="confirmBooking()"><i data-lucide="check-circle"></i> დაჯავშნა (20% დეპოზიტით)</button>
       </div>
     </div>
 
-    <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-      <div class="nav-item active" onclick="switchTab('regions', this)">
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+      <div class="nav-tab active" onclick="switchTab('map', this)">
         <i data-lucide="map"></i>
-        <span>3D რუკა</span>
+        <span>რუკა</span>
       </div>
-      <div class="nav-item" onclick="switchTab('ai', this)">
+      <div class="nav-tab" onclick="switchTab('ai', this)">
         <i data-lucide="sparkles"></i>
         <span>AI ტური</span>
       </div>
-      <div class="nav-item" onclick="switchTab('bookings', this)">
+      <div class="nav-tab" onclick="switchTab('transport', this)">
+        <i data-lucide="bus"></i>
+        <span>ტრანსპორტი</span>
+      </div>
+      <div class="nav-tab" onclick="switchTab('bookings', this)">
         <i data-lucide="calendar"></i>
         <span>ჯავშნები</span>
       </div>
-    </div>
+    </nav>
 
   </div>
 
+  <!-- Leaflet Map JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
     lucide.createIcons();
 
-    let map = null;
-
-    function toggleTheme() {
-      const body = document.body;
-      const icon = document.getElementById('theme-icon');
-      if (body.getAttribute('data-theme') === 'dark') {
-        body.setAttribute('data-theme', 'light');
-        icon.setAttribute('data-lucide', 'sun');
-      } else {
-        body.setAttribute('data-theme', 'dark');
-        icon.setAttribute('data-lucide', 'moon');
-      }
-      lucide.createIcons();
-    }
-
-    // Open Interactive Leaflet Map on Region Click
-    function openRegionMap(regionName, lat, lng) {
-      const mapWrapper = document.getElementById('map-wrapper');
-      mapWrapper.style.display = 'block';
-
-      if (!map) {
-        map = L.map('map', { zoomControl: false }).setView([lat, lng], 11);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-      } else {
-        map.setView([lat, lng], 11);
-      }
-
-      // Add Sample Pins for the Region
-      L.marker([lat, lng]).addTo(map)
-        .bindPopup(`<b>${regionName}</b><br>მთავარი ლოკაციები & სერვისები`)
-        .openPopup();
-
-      setTimeout(() => map.invalidateSize(), 200);
-    }
-
-    function closeRegionMap() {
-      document.getElementById('map-wrapper').style.display = 'none';
-    }
-
-    function switchTab(tabId, el) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
-      document.getElementById(`screen-${tabId}`).classList.add('active');
-      if (el) el.classList.add('active');
-    }
-
-    function generateAI() {
-      document.getElementById('ai-res').innerHTML = `
-        <div class="card">
-          <h4 style="color:var(--primary);">AI ტური: სამცხე-ჯავახეთი</h4>
-          <p style="font-size:12px; margin-top:6px;">1. რაბათის ციხე & ექსკურსია</p>
-          <p style="font-size:12px;">2. სადილი ადგილობრივ მარანში</p>
-          <p style="font-size:12px;">3. ვარძიის სამონასტრო კომპლექსი</p>
-        </div>
-      `;
-    }
-  </script>
-</body>
-</html>
+    // SAMPLE DATA: 15 REALISTIC AKH
