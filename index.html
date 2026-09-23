@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>GeoRegion Akhaltsikhe - ლოკალური გიდი & ჯავშნები</title>
+  <title>GeoRegion Akhaltsikhe</title>
   
   <meta name="theme-color" content="#1a1225">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -24,7 +24,7 @@
       --bg-surface: #1a1225;
       --card-bg: rgba(35, 26, 50, 0.9);
       --card-solid: #231a32;
-      --accent: #f59e0b; /* Warm Amber */
+      --accent: #f59e0b;
       --accent-hover: #d97706;
       --accent-light: rgba(245, 158, 11, 0.15);
       --text: #f8fafc;
@@ -43,13 +43,15 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    body {
+    html, body {
+      width: 100%;
+      height: 100%;
       background-color: #09050e;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
       color: var(--text);
+      overflow: hidden;
     }
 
     /* 390px Mobile App Container */
@@ -68,22 +70,23 @@
 
     @media (min-width: 440px) {
       .app-viewport {
-        border-radius: 40px;
+        border-radius: 36px;
         height: 92vh;
-        border: 6px solid #2d1f42;
+        border: 4px solid #2d1f42;
       }
     }
 
     /* Header Bar */
     .app-header {
-      padding: 12px 16px;
-      background: rgba(26, 18, 37, 0.95);
-      backdrop-filter: blur(12px);
+      height: 56px;
+      padding: 0 16px;
+      background: rgba(26, 18, 37, 0.98);
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
       z-index: 1000;
+      flex-shrink: 0;
     }
 
     .app-title {
@@ -91,7 +94,7 @@
       align-items: center;
       gap: 8px;
       font-weight: 800;
-      font-size: 18px;
+      font-size: 16px;
       color: var(--text);
     }
 
@@ -103,7 +106,7 @@
       background: var(--accent-light);
       border: 1px solid var(--accent);
       color: var(--accent);
-      padding: 5px 10px;
+      padding: 5px 12px;
       border-radius: 20px;
       font-size: 11px;
       font-weight: 700;
@@ -117,18 +120,28 @@
     .screen-container {
       flex: 1;
       position: relative;
-      overflow-y: auto;
-      padding-bottom: 75px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
     .screen {
       display: none;
+      width: 100%;
+      height: 100%;
       flex-direction: column;
-      min-height: 100%;
+      overflow-y: auto;
+      padding-bottom: 20px;
     }
 
     .screen.active {
       display: flex;
+    }
+
+    /* Map Screen Specific Layout */
+    #tab-map {
+      overflow: hidden;
+      position: relative;
     }
 
     /* Category Filter Chips */
@@ -136,13 +149,14 @@
       display: flex;
       gap: 8px;
       overflow-x: auto;
-      padding: 12px 16px;
+      padding: 10px 14px;
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       z-index: 500;
       scrollbar-width: none;
+      background: linear-gradient(180deg, rgba(26,18,37,0.9) 0%, rgba(26,18,37,0) 100%);
     }
     .chips-scroll::-webkit-scrollbar { display: none; }
 
@@ -150,7 +164,7 @@
       background: var(--card-solid);
       border: 1px solid var(--border);
       color: var(--text);
-      padding: 8px 14px;
+      padding: 7px 14px;
       border-radius: 24px;
       font-size: 12px;
       font-weight: 600;
@@ -159,7 +173,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
     }
 
     .chip.active {
@@ -180,10 +194,10 @@
     #map {
       width: 100%;
       height: 100%;
-      min-height: 520px;
       z-index: 1;
     }
 
+    /* Custom Leaflet Dark/Warm Styling Overrides */
     .leaflet-popup-content-wrapper {
       background: var(--card-solid) !important;
       color: var(--text) !important;
@@ -221,8 +235,8 @@
     }
 
     .sheet-img {
-      width: 85px;
-      height: 85px;
+      width: 80px;
+      height: 80px;
       border-radius: 12px;
       object-fit: cover;
     }
@@ -239,7 +253,7 @@
       background: var(--card-solid);
       border-radius: var(--radius);
       padding: 16px;
-      margin: 10px 16px;
+      margin: 10px 14px;
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
     }
@@ -248,8 +262,8 @@
       background: var(--accent);
       color: #000;
       border: none;
-      padding: 12px 16px;
-      border-radius: 14px;
+      padding: 10px 16px;
+      border-radius: 12px;
       font-weight: 700;
       font-size: 13px;
       cursor: pointer;
@@ -257,7 +271,7 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      min-height: 44px;
+      min-height: 42px;
       width: 100%;
       transition: background 0.2s;
     }
@@ -272,7 +286,7 @@
     .modal-overlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(8px);
       z-index: 2000;
       display: none;
@@ -298,30 +312,27 @@
 
     /* Bottom Navigation Bar */
     .bottom-nav {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 70px;
-      background: rgba(26, 18, 37, 0.96);
+      height: 65px;
+      background: rgba(26, 18, 37, 0.98);
       backdrop-filter: blur(16px);
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-around;
       align-items: center;
       z-index: 1000;
+      flex-shrink: 0;
     }
 
     .nav-tab {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
       color: var(--text-sub);
       font-size: 10px;
       font-weight: 600;
       cursor: pointer;
-      width: 20%;
+      width: 25%;
     }
 
     .nav-tab.active {
@@ -358,11 +369,11 @@
     <!-- Top Bar Header -->
     <header class="app-header">
       <div class="app-title">
-        <i data-lucide="map-pin" style="color: var(--accent)"></i>
+        <i data-lucide="map-pin" style="color: var(--accent); width:18px; height:18px;"></i>
         <span>GeoRegion <span>ახალციხე</span></span>
       </div>
       <button class="role-switcher" onclick="toggleRole()">
-        <i data-lucide="user-check" id="role-icon"></i>
+        <i data-lucide="user-check" style="width:14px; height:14px;"></i>
         <span id="role-text">ტურისტი</span>
       </button>
     </header>
@@ -371,7 +382,7 @@
     <div class="screen-container">
 
       <!-- 1. MAP & DISCOVERY TAB -->
-      <div id="tab-map" class="screen active" style="height: 100%;">
+      <div id="tab-map" class="screen active">
         <!-- Category Filter Chips -->
         <div class="chips-scroll">
           <div class="chip chip-gem active" onclick="filterCategory('gems', this)">
@@ -381,7 +392,6 @@
           <div class="chip" onclick="filterCategory('hotel', this)">🏨 სასტუმროები</div>
           <div class="chip" onclick="filterCategory('cafe', this)">🍷 კაფე & ბარი</div>
           <div class="chip" onclick="filterCategory('tour', this)">🏛️ გიდები</div>
-          <div class="chip" onclick="filterCategory('transport', this)">🚕 ტრანსპორტი</div>
         </div>
 
         <!-- Leaflet Map Container -->
@@ -394,14 +404,14 @@
             <div class="sheet-info">
               <div>
                 <div style="display:flex; justify-content:space-between; align-items:start;">
-                  <h4 id="sheet-title" style="font-size: 14px; font-weight:800;"></h4>
-                  <span id="sheet-rating" style="color:var(--accent); font-size:12px; font-weight:700;">★ 4.9</span>
+                  <h4 id="sheet-title" style="font-size: 13px; font-weight:800;"></h4>
+                  <span id="sheet-rating" style="color:var(--accent); font-size:11px; font-weight:700;">★ 4.9</span>
                 </div>
                 <p id="sheet-desc" style="font-size: 11px; color: var(--text-sub); margin-top: 3px;"></p>
               </div>
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-                <span id="sheet-price" style="font-size: 13px; font-weight:800; color:var(--accent);"></span>
-                <button class="btn" style="padding: 6px 14px; min-height: 36px; width: auto;" onclick="openDetailsModal()">დათვალიერება</button>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+                <span id="sheet-price" style="font-size: 12px; font-weight:800; color:var(--accent);"></span>
+                <button class="btn" style="padding: 4px 12px; min-height: 32px; width: auto; font-size:11px;" onclick="openDetailsModal()">დათვალიერება</button>
               </div>
             </div>
           </div>
@@ -412,8 +422,8 @@
       <div id="tab-ai" class="screen">
         <div class="card" style="margin-top: 14px;">
           <div style="display:flex; align-items:center; gap:8px;">
-            <i data-lucide="sparkles" style="color:var(--accent);"></i>
-            <h3 style="font-size:16px; font-weight:800;">AI ტურის დაგეგმვა</h3>
+            <i data-lucide="sparkles" style="color:var(--accent); width:18px;"></i>
+            <h3 style="font-size:15px; font-weight:800;">AI ტურის დაგეგმვა</h3>
           </div>
           <p style="font-size: 11px; color: var(--text-sub); margin-top: 4px;">
             შეიყვანეთ ბიუჯეტი და დღეები. AI შეადგენს ავთენტურ მარშრუტს მხოლოდ ახალციხის ლოკაციებით.
@@ -428,17 +438,17 @@
               <label style="font-size: 11px; color: var(--text-muted); font-weight:600;">დღეების რაოდენობა</label>
               <input type="number" id="ai-days" value="2">
             </div>
-            <button class="btn" onclick="generateAITrip()"><i data-lucide="cpu"></i> მარშრუტის შექმნა</button>
+            <button class="btn" onclick="generateAITrip()"><i data-lucide="cpu" style="width:16px;"></i> მარშრუტის შექმნა</button>
           </div>
         </div>
 
-        <div id="ai-results" style="padding-bottom: 20px;"></div>
+        <div id="ai-results"></div>
       </div>
 
       <!-- 3. TRANSPORT & TAXI TAB -->
       <div id="tab-transport" class="screen">
-        <div style="padding: 14px 16px 0 16px;">
-          <h3 style="font-size: 16px; font-weight:800;">რეგიონული ტრანსპორტი & ტაქსი</h3>
+        <div style="padding: 14px 14px 0 14px;">
+          <h3 style="font-size: 15px; font-weight:800;">რეგიონული ტრანსპორტი & ტაქსი</h3>
           <p style="font-size: 11px; color: var(--text-sub); margin-top: 2px;">დაფიქსირებული ტარიფები და ადგილების დაჯავშნა</p>
         </div>
 
@@ -448,89 +458,89 @@
           
           <div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 0; border-bottom:1px solid var(--border);">
             <div>
-              <div style="font-size:13px; font-weight:700;">ახალციხე ➔ ვარძია</div>
-              <div style="font-size:11px; color:var(--text-sub);">ყოველდღე: 10:00, 13:00 • 1სთ 10წთ</div>
+              <div style="font-size:12px; font-weight:700;">ახალციხე ➔ ვარძია</div>
+              <div style="font-size:10px; color:var(--text-sub);">ყოველდღე: 10:00, 13:00 • 1სთ 10წთ</div>
             </div>
-            <button class="btn" style="min-height:34px; padding:4px 10px; width:auto; font-size:11px;" onclick="bookTransport('ახალციხე - ვარძია', 12)">₾12 / სკამი</button>
+            <button class="btn" style="min-height:32px; padding:4px 10px; width:auto; font-size:11px;" onclick="bookTransport('ახალციხე - ვარძია', 12)">₾12 / სკამი</button>
           </div>
 
           <div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 0;">
             <div>
-              <div style="font-size:13px; font-weight:700;">ახალციხე ➔ ბორჯომი</div>
-              <div style="font-size:11px; color:var(--text-sub);">ყოველ 1 საათში • 45 წუთი</div>
+              <div style="font-size:12px; font-weight:700;">ახალციხე ➔ ბორჯომი</div>
+              <div style="font-size:10px; color:var(--text-sub);">ყოველ 1 საათში • 45 წუთი</div>
             </div>
-            <button class="btn" style="min-height:34px; padding:4px 10px; width:auto; font-size:11px;" onclick="bookTransport('ახალციხე - ბორჯომი', 7)">₾7 / სკამი</button>
+            <button class="btn" style="min-height:32px; padding:4px 10px; width:auto; font-size:11px;" onclick="bookTransport('ახალციხე - ბორჯომი', 7)">₾7 / სკამი</button>
           </div>
         </div>
 
         <!-- Local Taxi Directory -->
         <div class="card">
-          <h4 style="font-size: 13px; font-weight:800; margin-bottom:10px; color:var(--accent);">🚕 ლოკალური ტაქსი (ფიქსირებული ტარიფი)</h4>
+          <h4 style="font-size: 13px; font-weight:800; margin-bottom:10px; color:var(--accent);">🚕 ლოკალური ტაქსი</h4>
           
           <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom:1px solid var(--border);">
             <div>
-              <div style="font-size:13px; font-weight:700;">გიორგი (Prius)</div>
-              <div style="font-size:11px; color:var(--text-sub);">ქალაქში: ₾5 | რაბათი-საფარა: ₾20</div>
+              <div style="font-size:12px; font-weight:700;">გიორგი (Prius)</div>
+              <div style="font-size:10px; color:var(--text-sub);">ქალაქში: ₾5 | რაბათი-საფარა: ₾20</div>
             </div>
-            <a href="tel:+995599000000" class="btn btn-secondary" style="min-height:34px; padding:4px 10px; width:auto; font-size:11px; text-decoration:none;"><i data-lucide="phone"></i> დარეკვა</a>
+            <a href="tel:+995599000000" class="btn btn-secondary" style="min-height:32px; padding:4px 10px; width:auto; font-size:11px; text-decoration:none;">დარეკვა</a>
           </div>
 
           <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0;">
             <div>
-              <div style="font-size:13px; font-weight:700;">დათო (4x4 Delica)</div>
-              <div style="font-size:11px; color:var(--text-sub);">მთის ტურები / ვარძია-საფარა</div>
+              <div style="font-size:12px; font-weight:700;">დათო (4x4 Delica)</div>
+              <div style="font-size:10px; color:var(--text-sub);">მთის ტურები / ვარძია-საფარა</div>
             </div>
-            <a href="tel:+995599000000" class="btn btn-secondary" style="min-height:34px; padding:4px 10px; width:auto; font-size:11px; text-decoration:none;"><i data-lucide="phone"></i> დარეკვა</a>
+            <a href="tel:+995599000000" class="btn btn-secondary" style="min-height:32px; padding:4px 10px; width:auto; font-size:11px; text-decoration:none;">დარეკვა</a>
           </div>
         </div>
       </div>
 
-      <!-- 4. MY BOOKINGS & CHAT TAB -->
+      <!-- 4. MY BOOKINGS TAB -->
       <div id="tab-bookings" class="screen">
-        <div style="padding: 14px 16px 0 16px;">
-          <h3 style="font-size: 16px; font-weight:800;">ჩემი ჯავშნები & ჩატი</h3>
+        <div style="padding: 14px 14px 0 14px;">
+          <h3 style="font-size: 15px; font-weight:800;">ჩემი ჯავშნები & ჩატი</h3>
         </div>
 
         <div id="bookings-list">
           <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <span class="tag">დადასტურებულია</span>
-              <span style="font-size:11px; color:var(--text-sub);">ID: #7821</span>
+              <span style="font-size:10px; color:var(--text-sub);">ID: #7821</span>
             </div>
-            <h4 style="font-size:14px; font-weight:800; margin-top:8px;">საოჯახო მარანი "მესხური თასი"</h4>
-            <div style="font-size:12px; color:var(--text-sub); margin-top:4px;">📅 28 სექტემბერი, 2026 • 18:00</div>
-            <div style="font-size:12px; font-weight:700; color:var(--accent); margin-top:4px;">20% დეპოზიტი გადახდილია (₾16)</div>
+            <h4 style="font-size:13px; font-weight:800; margin-top:8px;">საოჯახო მარანი "მესხური თასი"</h4>
+            <div style="font-size:11px; color:var(--text-sub); margin-top:4px;">📅 28 სექტემბერი, 2026 • 18:00</div>
+            <div style="font-size:11px; font-weight:700; color:var(--accent); margin-top:4px;">20% დეპოზიტი გადახდილია (₾16)</div>
             
             <div style="display:flex; gap:8px; margin-top:12px;">
-              <button class="btn btn-secondary" style="min-height:36px; font-size:12px;" onclick="alert('ჩატი მფლობელთან: გამარჯობა, ველოდებით თქვენს სტუმრობას!')"><i data-lucide="message-square"></i> ჩატი მფლობელთან</button>
+              <button class="btn btn-secondary" style="min-height:34px; font-size:11px;" onclick="alert('ჩატი: გამარჯობა! ველოდებით თქვენს სტუმრობას.')"><i data-lucide="message-square" style="width:14px;"></i> ჩატი მფლობელთან</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 5. BUSINESS OWNER DASHBOARD (TOGGLED SCREEN) -->
+      <!-- 5. BUSINESS OWNER DASHBOARD -->
       <div id="tab-business" class="screen">
-        <div style="padding: 14px 16px 0 16px;">
-          <h3 style="font-size: 16px; font-weight:800; color:var(--accent);">ბიზნესის მართვის პანელი</h3>
+        <div style="padding: 14px 14px 0 14px;">
+          <h3 style="font-size: 15px; font-weight:800; color:var(--accent);">ბიზნესის მართვის პანელი</h3>
           <p style="font-size: 11px; color: var(--text-sub);">საოჯახო სასტუმრო "ძველი ახალციხე"</p>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; padding:0 16px; margin-top:10px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; padding:0 14px; margin-top:10px;">
           <div class="card" style="margin:0; text-align:center;">
-            <div style="font-size:20px; font-weight:800; color:var(--accent);">₾1,240</div>
+            <div style="font-size:18px; font-weight:800; color:var(--accent);">₾1,240</div>
             <div style="font-size:10px; color:var(--text-sub);">თვის შემოსავალი</div>
           </div>
           <div class="card" style="margin:0; text-align:center;">
-            <div style="font-size:20px; font-weight:800; color:#10b981;">18</div>
+            <div style="font-size:18px; font-weight:800; color:#10b981;">18</div>
             <div style="font-size:10px; color:var(--text-sub);">ჯავშნები</div>
           </div>
         </div>
 
         <div class="card">
-          <h4 style="font-size:13px; font-weight:800; margin-bottom:8px;">დღევანდელი ჯავშნები</h4>
-          <div style="padding:8px; background:rgba(0,0,0,0.2); border-radius:10px; font-size:12px;">
+          <h4 style="font-size:12px; font-weight:800; margin-bottom:8px;">დღევანდელი ჯავშნები</h4>
+          <div style="padding:8px; background:rgba(0,0,0,0.2); border-radius:10px; font-size:11px;">
             <div><strong>გიორგი ბერიძე</strong> - 2 ადგილი</div>
-            <div style="color:var(--text-sub); font-size:11px;">19:00 • დეგუსტაცია • ₾80 (დეპოზიტი ₾16)</div>
+            <div style="color:var(--text-sub); font-size:10px;">19:00 • დეგუსტაცია • ₾80 (დეპოზიტი ₾16)</div>
             <div style="color:#10b981; font-size:10px; margin-top:2px;">პლატფორმის 10% საკომისიო: -₾8</div>
           </div>
         </div>
@@ -543,52 +553,39 @@
       <div class="modal-content">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <span class="tag" id="modal-cat">Hidden Gem 💎</span>
-          <i data-lucide="x" style="cursor:pointer;" onclick="closeModal()"></i>
+          <i data-lucide="x" style="cursor:pointer; width:18px;" onclick="closeModal()"></i>
         </div>
         
-        <h3 id="modal-title" style="font-size:18px; font-weight:800;"></h3>
-        <p id="modal-desc" style="font-size:12px; color:var(--text-sub); margin-top:6px;"></p>
+        <h3 id="modal-title" style="font-size:16px; font-weight:800;"></h3>
+        <p id="modal-desc" style="font-size:11px; color:var(--text-sub); margin-top:6px;"></p>
 
-        <div style="margin-top:16px; border-top:1px solid var(--border); padding-top:12px;">
-          <h4 style="font-size:13px; font-weight:800; margin-bottom:8px;">სერვისები & ფასები:</h4>
+        <div style="margin-top:14px; border-top:1px solid var(--border); padding-top:10px;">
+          <h4 style="font-size:12px; font-weight:800; margin-bottom:6px;">სერვისები & ფასები:</h4>
           <div id="modal-services"></div>
         </div>
 
-        <div style="margin-top:16px;">
+        <div style="margin-top:12px;">
           <label style="font-size:11px; font-weight:700;">აირჩიეთ თარიღი:</label>
           <input type="date" value="2026-09-25">
         </div>
 
-        <button class="btn" style="margin-top:16px;" onclick="confirmBooking()"><i data-lucide="check-circle"></i> დაჯავშნა (20% დეპოზიტით)</button>
+        <button class="btn" style="margin-top:14px;" onclick="confirmBooking()"><i data-lucide="check-circle" style="width:16px;"></i> დაჯავშნა (20% დეპოზიტით)</button>
       </div>
     </div>
 
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
       <div class="nav-tab active" onclick="switchTab('map', this)">
-        <i data-lucide="map"></i>
+        <i data-lucide="map" style="width:18px; height:18px;"></i>
         <span>რუკა</span>
       </div>
       <div class="nav-tab" onclick="switchTab('ai', this)">
-        <i data-lucide="sparkles"></i>
+        <i data-lucide="sparkles" style="width:18px; height:18px;"></i>
         <span>AI ტური</span>
       </div>
       <div class="nav-tab" onclick="switchTab('transport', this)">
-        <i data-lucide="bus"></i>
+        <i data-lucide="bus" style="width:18px; height:18px;"></i>
         <span>ტრანსპორტი</span>
       </div>
       <div class="nav-tab" onclick="switchTab('bookings', this)">
-        <i data-lucide="calendar"></i>
-        <span>ჯავშნები</span>
-      </div>
-    </nav>
-
-  </div>
-
-  <!-- Leaflet Map JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <script>
-    lucide.createIcons();
-
-    // SAMPLE DATA: 15 REALISTIC AKH
+        <i data-lucide="c
